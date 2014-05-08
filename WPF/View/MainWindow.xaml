@@ -1,0 +1,220 @@
+﻿<Window
+  x:Class="ReadableAthens.WPF.MainWindow"
+  
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:map="clr-namespace:MapControl;assembly=MapControl.WPF"        
+  xmlns:local="clr-namespace:ReadableAthens"
+        
+  Title="Readable Athens" 
+  Width="800" Height="600"
+  WindowState="Maximized"
+
+  Stylus.IsPressAndHoldEnabled="False"        
+  >
+
+  <!-- Styling -->
+  <Window.Resources>
+    <local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
+
+    <map:TileLayerCollection x:Key="TileLayers">
+      <map:TileLayer
+        SourceName="OpenStreetMap"
+        Description="© {y} OpenStreetMap Contributors, CC-BY-SA"
+        TileSource="http://{c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+      <map:TileLayer
+        SourceName="OpenCycleMap"
+        Description="OpenCycleMap - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
+        TileSource="http://{c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
+        />
+      <map:TileLayer
+        SourceName="OCM Transport"
+        Description="OpenCycleMap Transport - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
+        TileSource="http://{c}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"
+        />
+      <map:TileLayer
+        SourceName="OCM Landscape"
+        Description="OpenCycleMap Landscape - © {y} Andy Allen &amp; OpenStreetMap Contributors, CC-BY-SA"
+        TileSource="http://{c}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png"
+        />
+      <map:TileLayer
+        SourceName="MapQuest OSM"
+        Description="MapQuest OSM - © {y} MapQuest &amp; OpenStreetMap Contributors"
+        TileSource="http://otile{n}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png"
+        />      
+    </map:TileLayerCollection>
+
+    <CollectionViewSource
+      x:Key="TileLayersViewSource"
+      Source="{StaticResource TileLayers}"
+      />
+ 
+    <Style x:Key="PushpinItemStyle" TargetType="map:MapItem">
+      <Setter Property="Foreground" Value="Black" />
+      <Setter Property="Background" Value="#80FF0000" />
+      <Setter Property="map:MapPanel.Location" Value="{Binding Location}"/>
+      <Setter Property="Visibility">
+        <Setter.Value>
+          <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
+            <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}"/>
+            <Binding Path="RenderTransform" RelativeSource="{RelativeSource Self}"/>
+          </MultiBinding>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="VerticalAlignment" Value="Bottom"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="map:MapItem">
+            <map:Pushpin
+              Content="{Binding Name}"
+              Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=map:MapItem}}"
+              Background="{Binding Background, RelativeSource={RelativeSource AncestorType=map:MapItem}}"
+              >
+              <ToolTipService.ToolTip>
+                <ToolTip>
+                  <ToolTip.Content>
+                    <Viewbox Width="300">
+                      <Image Source="{Binding Image}" />
+                    </Viewbox>
+                  </ToolTip.Content> 
+                </ToolTip>
+              </ToolTipService.ToolTip>
+            </map:Pushpin>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <EventSetter Event="TouchDown" Handler="MapItemTouchDown"/>
+      <Style.Triggers>
+        <Trigger Property="IsSelected" Value="True">
+          <Setter Property="Foreground" Value="Yellow"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+  </Window.Resources>
+
+  <!-- Model -->
+  
+  <Window.DataContext>
+    <local:ViewModel>
+
+      <local:ViewModel.MapCenter>
+        <map:Location Latitude="37.98567" Longitude="23.73822" />
+      </local:ViewModel.MapCenter>
+
+<!--
+      <local:ViewModel.Pushpins>
+        <local:VmPoints>
+          
+          <local:VmPoint Name="1">
+            <local:VmPoint.Location>
+              <map:Location Latitude="37.984971" Longitude="23.735747" />
+            </local:VmPoint.Location>
+          </local:VmPoint>
+
+        </local:VmPoints>        
+      </local:ViewModel.Pushpins>
+-->
+    </local:ViewModel>
+  </Window.DataContext>
+
+  <!-- View -->
+  
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <map:Map
+      x:Name="map"
+      Margin="2"
+      Center="{Binding MapCenter}"
+      ZoomLevel="17.78"
+      MaxZoomLevel="20"
+      TileLayer="{Binding Source={StaticResource TileLayersViewSource}, Path=CurrentItem}"
+      MouseLeftButtonDown="MapMouseLeftButtonDown" MouseRightButtonDown="MapMouseRightButtonDown"
+      MouseMove="MapMouseMove"
+      MouseLeave="MapMouseLeave"
+      ManipulationInertiaStarting="MapManipulationInertiaStarting"
+      >
+
+<!--
+      <map:MapImage
+        x:Name="mapImage"
+        North="37.9845" West="23.7316" 
+        South="37.9826" East="23.734"
+        Source="overlay.jpg"
+        Opacity="0.5"
+        />
+-->
+      
+<!--  <map:MapGraticule Opacity="0.6"/> -->
+      
+<!--  <map:MapScale Margin="4" Opacity="0.8"/> -->
+
+      <!-- use ItemTemplate or ItemContainerStyle alternatively -->
+      <map:MapItemsControl
+        ItemsSource="{Binding Pushpins}"
+        ItemContainerStyle="{StaticResource PushpinItemStyle}"
+        IsSynchronizedWithCurrentItem="True"
+        />
+
+<!--      
+      <map:Pushpin map:MapPanel.Location="37.9852343,23.7366455" Background="Yellow" Foreground="Blue" Content="*">
+        <map:Pushpin.Visibility>
+          <MultiBinding Converter="{StaticResource LocationToVisibilityConverter}">
+            <Binding Path="(map:MapPanel.ParentMap)" RelativeSource="{RelativeSource Self}" />
+            <Binding Path="RenderTransform" RelativeSource="{RelativeSource Self}" />
+          </MultiBinding>
+        </map:Pushpin.Visibility>
+      </map:Pushpin>
+-->
+    </map:Map>
+    
+    <!-- bottom bar -->
+
+    <Grid Grid.Row="1" Visibility="Visible">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      
+      <TextBlock x:Name="mouseLocation" Margin="5" VerticalAlignment="Bottom" FontFamily="Segoe UI Mono"/>
+
+      <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+         
+          <Slider 
+            ToolTip="Zoom Level" 
+            Width="100"
+            VerticalAlignment="Center"
+            SmallChange="0.01"
+            Minimum="{Binding MinZoomLevel, ElementName=map}"
+            Maximum="{Binding MaxZoomLevel, ElementName=map}"
+            Value="{Binding TargetZoomLevel, ElementName=map}"
+            />
+
+        <ComboBox
+          ToolTip="Tile Layer"
+          Margin="5"
+          VerticalAlignment="Bottom"
+          DisplayMemberPath="SourceName"
+          SelectedIndex="0"
+          ItemsSource="{Binding Source={StaticResource TileLayersViewSource}}"
+          />
+      </StackPanel>
+      
+    </Grid>
+
+    <MediaElement 
+      x:Name="sound"
+      Source="App_Data/Sounds/crowd-talking-1.mp3"
+      LoadedBehavior="Play"
+      UnloadedBehavior="Play"
+      Visibility="Collapsed"
+      /> <!-- audio source is from http://www.soundjay.com/crowd-talking-1.html -->
+
+  </Grid>
+
+</Window>
