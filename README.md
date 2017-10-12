@@ -1,6 +1,6 @@
 # InteractiveVisualNoiseHeatmap
 
-Demo application for Readable Athens art project
+Demo application for *Readable Athens* art project
 
 Pins JPGs on map (using GPS EXIF info), shows at pin hover, louder noise closer to more text (*.jpg.txt OCRed)
 
