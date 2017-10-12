@@ -1,4 +1,4 @@
-# InteractiveVisualNoiseHeatmap
+## InteractiveVisualNoiseHeatmap
 
 Demo application for *Readable Athens* art project
 
