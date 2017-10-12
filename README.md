@@ -2,8 +2,7 @@
 
 Demo application for *Readable Athens* art project
 
-Pins JPGs on map (using GPS EXIF info), shows at pin hover, louder noise closer to more text (*.jpg.txt OCRed)
-
+Pins JPGs from a folder on a map (using GPS EXIF info), shows at pin hover, plays louder noise closer to more text (*.jpg.txt OCRed)
 
 Software:
 
