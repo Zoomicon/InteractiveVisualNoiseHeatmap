@@ -2,6 +2,8 @@
 
 Demo application for *Readable Athens* art project
 
+See https://www.researchgate.net/publication/282660465_Readable_City_Soundscapes_reading_visual_noise_in_the_hybrid_city
+
 Pins JPGs from a folder on a map (using GPS EXIF info), shows at pin hover, plays louder noise closer to more text (*.jpg.txt OCRed)
 
 Software:
